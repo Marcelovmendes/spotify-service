@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthenticationController {
 
     private final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
@@ -41,8 +41,8 @@ public class AuthenticationController {
             HttpSession session) {
 
         log.info("OAuth callback received - Session ID: {}", session.getId());
-        log.info("Callback parameters - Code present: {}, State: {}, Error: {}",
-                code != null, state, error != null ? error : "none");
+        log.info("Callback parameters - Code present: {}, State: {}, Error: {}"
+        );
 
         if (error != null) {
             log.error("OAuth provider returned error: {}", error);
@@ -70,4 +70,20 @@ public class AuthenticationController {
         }
     }
 
+    @PostMapping("/link-youtube")
+    public ResponseEntity<Void> linkYoutubeSession(
+            @RequestBody LinkYoutubeRequest request,
+            HttpSession session
+    ) {
+        if (!tokenQuery.isUserAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        session.setAttribute("youtubeSessionId", request.youtubeSessionId());
+        log.info("Linked YouTube session {} to Spotify session {}", request.youtubeSessionId(), session.getId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    public record LinkYoutubeRequest(String youtubeSessionId) {}
 }
