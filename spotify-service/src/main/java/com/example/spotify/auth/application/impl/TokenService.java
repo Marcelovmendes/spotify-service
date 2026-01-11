@@ -29,6 +29,12 @@ public class TokenService implements TokenQuery {
 
     @Override
     public Optional<Token> getCurrentUserToken() {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String accessToken = authHeader.substring(7);
+            return Optional.of(Token.fromAccessToken(accessToken));
+        }
+
         String sessionId = request.getSession(false) != null ? request.getSession(false).getId() : null;
         if (sessionId == null) {
             log.warn("Session ID is null");

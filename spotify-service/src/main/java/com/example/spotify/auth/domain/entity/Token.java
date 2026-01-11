@@ -19,6 +19,10 @@ public class Token {
         return new Token(accessToken, refreshToken, expiresAt);
     }
 
+    public static Token fromAccessToken(String accessToken) {
+        return new Token(accessToken, null, Instant.now().plusSeconds(3600));
+    }
+
     public String getAccessToken() {return accessToken;}
     public String getRefreshToken() { return refreshToken; }
     public Instant getExpiresAt() { return expiresAt; }
