@@ -1,8 +1,24 @@
 # 🎵 PlaySwap 
 
-# About services 
 
-### [user-service](#user-service)
+
+
+# Architecture
+
+![Architecture Overview](docs/architecture.png)
+
+
+## Flow
+
+1. User selects Spotify playlist
+2. Job created in Redis queue
+3. Worker fetches tracks (Spotify API)
+4. Worker matches with YouTube (5 concurrent searches)
+5. Worker creates YouTube playlist
+6. History saved to PostgreSQL
+
+# About services
+
 ### [Spotify Service Documentation](#Spotify-service)
 ### [youtube-service](#youtube-service)
 ### [convert-service](#convert-service)
