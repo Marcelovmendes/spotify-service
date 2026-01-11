@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("api/spotify/v1/users")
+@RequestMapping("/users")
 public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("api/spotify/v1/playlist/")
+@RequestMapping("/playlists")
 public class PlaylistController {
 
     private static final Logger log = LoggerFactory.getLogger(PlaylistController.class);
