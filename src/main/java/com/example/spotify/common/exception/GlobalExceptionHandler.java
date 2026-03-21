@@ -104,22 +104,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CompletionException.class)
-    public ResponseEntity<ErrorResponse> handleCompletionException(ApplicationException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleCompletionException(CompletionException ex, WebRequest request) {
         Throwable cause = ex.getCause();
-        if (cause instanceof ApplicationException) {
-            return handleCompletionException((ApplicationException) cause, request);
+        if (cause instanceof ApplicationException appEx) {
+            return handleApplicationException(appEx, request);
         }
 
-        log.error("CompletionException: {}", ex.getMessage(), ex);
-
-        ErrorResponse error = new ErrorResponse(
-                ex.getType().toString(),
-                ex.getMessage(),
-                ex.getType().getHttpStatus().value(),
-                LocalDateTime.now(),
-                Map.of("exception", ex.getClass().getSimpleName()));
-
-        return new ResponseEntity<>(error,ex.getType().getHttpStatus());
+        return handleGeneralException(ex, request);
     }
 
 
