@@ -89,12 +89,12 @@ public class SpotifyPlaylistAdapter extends ExternalServiceAdapter implements Pl
     }
 
     @Override
-    public PageResult<SavedTrack> getCurrentUserSavedTracksAsync(String accessToken) {
+    public PageResult<SavedTrack> getCurrentUserSavedTracksAsync(String accessToken, int offset, int limit) {
         spotifyApi.setAccessToken(accessToken);
         Paging<se.michaelthelin.spotify.model_objects.specification.SavedTrack> spotifySavedTracks = executeAsync(
                 spotifyApi.getUsersSavedTracks()
-                        .limit(50)
-                        .offset(0)
+                        .limit(limit)
+                        .offset(offset)
                         .build()
                         .executeAsync(),
                 "fetching current user saved tracks"

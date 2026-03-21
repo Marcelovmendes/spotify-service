@@ -58,8 +58,10 @@ public class PlaylistController {
     }
 
     @GetMapping("/saved-tracks")
-    public ResponseEntity<PageResult<SavedTrack>> getCurrentUserSavedTracks() {
-        PageResult<SavedTrack> savedTracks = playlistsService.getCurrentUserSavedTracksAsync();
+    public ResponseEntity<PageResult<SavedTrack>> getCurrentUserSavedTracks(
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "50") int limit) {
+        PageResult<SavedTrack> savedTracks = playlistsService.getCurrentUserSavedTracksAsync(offset, limit);
         return ResponseEntity.ok(savedTracks);
     }
 

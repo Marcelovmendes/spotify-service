@@ -307,9 +307,9 @@ class PlaylistSyncServiceImplTest {
         );
 
         when(tokenProvider.getAccessToken()).thenReturn(ACCESS_TOKEN);
-        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN)).thenReturn(expectedPageResult);
+        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN, 0, 50)).thenReturn(expectedPageResult);
 
-        PageResult<SavedTrack> result = service.getCurrentUserSavedTracksAsync();
+        PageResult<SavedTrack> result = service.getCurrentUserSavedTracksAsync(0, 50);
 
         assertThat(result).isNotNull();
         assertThat(result.getItems()).hasSize(2);
@@ -320,7 +320,7 @@ class PlaylistSyncServiceImplTest {
         assertThat(result.hasPrevious()).isFalse();
 
         verify(tokenProvider).getAccessToken();
-        verify(playlistPort).getCurrentUserSavedTracksAsync(ACCESS_TOKEN);
+        verify(playlistPort).getCurrentUserSavedTracksAsync(ACCESS_TOKEN, 0, 50);
     }
 
     @Test
@@ -336,9 +336,9 @@ class PlaylistSyncServiceImplTest {
         );
 
         when(tokenProvider.getAccessToken()).thenReturn(ACCESS_TOKEN);
-        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN)).thenReturn(emptyPageResult);
+        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN, 0, 50)).thenReturn(emptyPageResult);
 
-        PageResult<SavedTrack> result = service.getCurrentUserSavedTracksAsync();
+        PageResult<SavedTrack> result = service.getCurrentUserSavedTracksAsync(0, 50);
 
         assertThat(result).isNotNull();
         assertThat(result.getItems()).isEmpty();
@@ -347,7 +347,7 @@ class PlaylistSyncServiceImplTest {
         assertThat(result.hasPrevious()).isFalse();
 
         verify(tokenProvider).getAccessToken();
-        verify(playlistPort).getCurrentUserSavedTracksAsync(ACCESS_TOKEN);
+        verify(playlistPort).getCurrentUserSavedTracksAsync(ACCESS_TOKEN, 0, 50);
     }
 
     @Test
@@ -364,11 +364,11 @@ class PlaylistSyncServiceImplTest {
         );
 
         when(tokenProvider.getAccessToken()).thenReturn(customToken);
-        when(playlistPort.getCurrentUserSavedTracksAsync(customToken)).thenReturn(pageResult);
+        when(playlistPort.getCurrentUserSavedTracksAsync(customToken, 0, 50)).thenReturn(pageResult);
 
-        service.getCurrentUserSavedTracksAsync();
+        service.getCurrentUserSavedTracksAsync(0, 50);
 
-        verify(playlistPort).getCurrentUserSavedTracksAsync(customToken);
+        verify(playlistPort).getCurrentUserSavedTracksAsync(customToken, 0, 50);
     }
 
     @Test
@@ -384,9 +384,9 @@ class PlaylistSyncServiceImplTest {
         );
 
         when(tokenProvider.getAccessToken()).thenReturn(ACCESS_TOKEN);
-        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN)).thenReturn(pageResult);
+        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN, 0, 50)).thenReturn(pageResult);
 
-        PageResult<SavedTrack> result = service.getCurrentUserSavedTracksAsync();
+        PageResult<SavedTrack> result = service.getCurrentUserSavedTracksAsync(0, 50);
 
         assertThat(result.getTotal()).isEqualTo(200);
         assertThat(result.getLimit()).isEqualTo(50);
@@ -410,9 +410,9 @@ class PlaylistSyncServiceImplTest {
         );
 
         when(tokenProvider.getAccessToken()).thenReturn(ACCESS_TOKEN);
-        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN)).thenReturn(pageResult);
+        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN, 0, 50)).thenReturn(pageResult);
 
-        service.getCurrentUserSavedTracksAsync();
+        service.getCurrentUserSavedTracksAsync(0, 50);
 
         verify(tokenProvider, times(1)).getAccessToken();
     }
@@ -435,9 +435,9 @@ class PlaylistSyncServiceImplTest {
         );
 
         when(tokenProvider.getAccessToken()).thenReturn(ACCESS_TOKEN);
-        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN)).thenReturn(pageResult);
+        when(playlistPort.getCurrentUserSavedTracksAsync(ACCESS_TOKEN, 0, 50)).thenReturn(pageResult);
 
-        PageResult<SavedTrack> result = service.getCurrentUserSavedTracksAsync();
+        PageResult<SavedTrack> result = service.getCurrentUserSavedTracksAsync(0, 50);
 
         assertThat(result.getItems()).extracting(st -> st.getTrack().getName())
                 .containsExactly("First Song", "Second Song", "Third Song");

@@ -42,9 +42,9 @@ public class PlaylistSyncServiceImpl implements PlaylistsService {
     }
 
     @Override
-    public PageResult<SavedTrack> getCurrentUserSavedTracksAsync() {
+    public PageResult<SavedTrack> getCurrentUserSavedTracksAsync(int offset, int limit) {
         String accessToken = tokenProvider.getAccessToken();
-        return playlistPort.getCurrentUserSavedTracksAsync(accessToken);
+        return playlistPort.getCurrentUserSavedTracksAsync(accessToken, offset, limit);
     }
 
 }
