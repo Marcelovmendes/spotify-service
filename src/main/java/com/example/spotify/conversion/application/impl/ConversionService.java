@@ -1,6 +1,7 @@
 package com.example.spotify.conversion.application.impl;
 
 import com.example.spotify.conversion.application.ConversionUseCase;
+import com.example.spotify.conversion.application.port.JobQueuePort;
 import com.example.spotify.conversion.domain.ConversionException;
 import com.example.spotify.conversion.domain.entity.ConversionJob;
 import com.example.spotify.conversion.domain.entity.ConversionJobStatus;
@@ -15,9 +16,11 @@ public class ConversionService implements ConversionUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(ConversionService.class);
 
+    private final JobQueuePort jobQueue;
     private final RedisConversionAdapter redisAdapter;
 
-    public ConversionService(RedisConversionAdapter redisAdapter) {
+    public ConversionService(JobQueuePort jobQueue, RedisConversionAdapter redisAdapter) {
+        this.jobQueue = jobQueue;
         this.redisAdapter = redisAdapter;
     }
 
@@ -33,7 +36,7 @@ public class ConversionService implements ConversionUseCase {
                 command.selectedTrackIds()
         );
 
-        redisAdapter.enqueueJob(job);
+        jobQueue.enqueue(job);
 
         log.info("Conversion job created: {}", job.jobId());
 
