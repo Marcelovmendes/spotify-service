@@ -10,8 +10,6 @@ import com.example.spotify.auth.domain.service.PkceGenerator;
 
 import com.example.spotify.common.exception.AuthenticationException;
 import com.example.spotify.common.exception.ErrorType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -23,8 +21,6 @@ import java.util.UUID;
 @Service
 public class SpotifyAuthenticationService implements AuthUseCase {
 
-
-    private static final Logger log = LoggerFactory.getLogger(SpotifyAuthenticationService.class);
     private static final Duration STATE_TIMEOUT = Duration.ofMinutes(10);
     private final AuthStateRepository authStateRepository;
     private final OAuthClient oauthClient;
@@ -41,10 +37,10 @@ public class SpotifyAuthenticationService implements AuthUseCase {
 
     @Override
     public URI initiateAuthentication() {
+        String stateValue = UUID.randomUUID().toString().replace("-", "");
         try {
             String codeVerifier = pkceGenerator.generateCodeVerifier();
             String codeChallenge = pkceGenerator.generateCodeChallenge(codeVerifier);
-            String stateValue = UUID.randomUUID().toString().replace("-", "");
 
             AuthState state = AuthState.create(stateValue, codeVerifier);
             authStateRepository.save(state, STATE_TIMEOUT);
@@ -55,8 +51,8 @@ public class SpotifyAuthenticationService implements AuthUseCase {
 
             return oauthClient.createAuthorizationUri(request);
         } catch (Exception e) {
-            log.error("Failed to initiate authentication", e);
-            throw new AuthenticationException("Failed to initiate authentication", ErrorType.AUTHENTICATION_EXCEPTION);
+            throw new AuthenticationException(
+                    "Failed to initiate authentication for state=%s".formatted(stateValue), e, ErrorType.AUTHENTICATION_EXCEPTION);
         }
     }
 
@@ -76,8 +72,8 @@ public class SpotifyAuthenticationService implements AuthUseCase {
             authStateRepository.remove(stateValue);
             return token;
         } catch (Exception e) {
-            log.error("Failed to exchange code for token", e);
-            throw new AuthenticationException("Failed to exchange code for token", ErrorType.AUTHENTICATION_EXCEPTION);
+            throw new AuthenticationException(
+                    "Failed to exchange code for token: state=%s".formatted(stateValue), e, ErrorType.AUTHENTICATION_EXCEPTION);
         }
     }
 }
