@@ -41,8 +41,8 @@ public class AuthenticationController {
             HttpSession session) {
 
         log.info("OAuth callback received - Session ID: {}", session.getId());
-        log.info("Callback parameters - Code present: {}, State: {}, Error: {}"
-        );
+        log.info("Callback parameters - Code present: {}, State: {}, Error: {}",
+                code != null, state, error);
 
         if (error != null) {
             log.error("OAuth provider returned error: {}", error);
