@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -18,12 +19,17 @@ public class AuthenticationController {
     private final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
     private final TokenQuery tokenQuery;
     private final AuthUseCase authUseCase;
-    private static String frontendUrl = "http://localhost:3000/auth/callback";
 
+    @Value("${frontend.url:http://localhost:3000}")
+    private String frontendBaseUrl;
 
     public AuthenticationController(TokenQuery tokenQuery, AuthUseCase authUseCase) {
         this.tokenQuery = tokenQuery;
         this.authUseCase = authUseCase;
+    }
+
+    private String getFrontendCallbackUrl() {
+        return frontendBaseUrl + "/auth/callback";
     }
 
     @GetMapping("/")
@@ -47,7 +53,7 @@ public class AuthenticationController {
         if (error != null) {
             log.error("OAuth provider returned error: {}", error);
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", frontendUrl + "?status=error&message=" + error)
+                    .header("Location", getFrontendCallbackUrl() + "?status=error&message=" + error)
                     .build();
         }
 
@@ -59,13 +65,13 @@ public class AuthenticationController {
             log.info("Authentication successful - Token stored in session: {}", session.getId());
 
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", frontendUrl + "?status=success")
+                    .header("Location", getFrontendCallbackUrl() + "?status=success")
                     .build();
         } catch (Exception e) {
             log.error("Authentication failed: {}", e.getMessage(), e);
             String errorMessage = e.getMessage() != null ? e.getMessage() : "authentication_failed";
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", frontendUrl + "?status=error&message=" + errorMessage)
+                    .header("Location", getFrontendCallbackUrl() + "?status=error&message=" + errorMessage)
                     .build();
         }
     }
