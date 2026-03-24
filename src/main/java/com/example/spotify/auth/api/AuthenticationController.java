@@ -28,13 +28,17 @@ public class AuthenticationController {
         this.authUseCase = authUseCase;
     }
 
-    private String getFrontendCallbackUrl() {
-        return frontendBaseUrl + "/auth/callback";
+    private String buildPostMessageHtml(String status, String error) {
+        String errorJson = error != null ? "\"" + error + "\"" : "null";
+        return "<!DOCTYPE html><html><body><script>" +
+            "var msg={type:\"SPOTIFY_AUTH_CALLBACK\",status:\"" + status + "\",error:" + errorJson + "};" +
+            "if(window.opener){window.opener.postMessage(msg,\"" + frontendBaseUrl + "\");}" +
+            "window.close();" +
+            "</script></body></html>";
     }
 
     @GetMapping("/")
     public ResponseEntity<String> initiateAuthentication(){
-
             URI response = authUseCase.initiateAuthentication();
             return ResponseEntity.ok(response.toString());
     }
@@ -52,27 +56,25 @@ public class AuthenticationController {
 
         if (error != null) {
             log.error("OAuth provider returned error: {}", error);
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", getFrontendCallbackUrl() + "?status=error&message=" + error)
-                    .build();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/html")
+                    .body(buildPostMessageHtml("error", error));
         }
 
         try {
             Token token = authUseCase.completeAuthentication(code, state);
-
             tokenQuery.storeUserToken(session.getId(), token);
-
             log.info("Authentication successful - Token stored in session: {}", session.getId());
 
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", getFrontendCallbackUrl() + "?status=success")
-                    .build();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/html")
+                    .body(buildPostMessageHtml("success", null));
         } catch (Exception e) {
             log.error("Authentication failed: {}", e.getMessage(), e);
             String errorMessage = e.getMessage() != null ? e.getMessage() : "authentication_failed";
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", getFrontendCallbackUrl() + "?status=error&message=" + errorMessage)
-                    .build();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/html")
+                    .body(buildPostMessageHtml("error", errorMessage));
         }
     }
 
