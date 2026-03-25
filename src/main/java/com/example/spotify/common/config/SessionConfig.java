@@ -34,7 +34,7 @@ public class SessionConfig {
         serializer.setSameSite(cookieSameSite);
         serializer.setUseSecureCookie(cookieSecure);
         if (!cookieDomain.isEmpty()) {
-            serializer.setDomainName(cookieDomain);
+            serializer.setDomainNamePattern("^.+?(\\w+\\.\\w+)$");
         }
         return serializer;
     }
