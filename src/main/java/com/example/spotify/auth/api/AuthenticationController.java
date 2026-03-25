@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -30,6 +29,10 @@ public class AuthenticationController {
         this.authUseCase = authUseCase;
     }
 
+    private String buildRedirectHtml(String url) {
+        return "<!DOCTYPE html><html><body><script>window.location.replace(\"" + url + "\");</script></body></html>";
+    }
+
     @GetMapping("/")
     public ResponseEntity<String> initiateAuthentication(){
             URI response = authUseCase.initiateAuthentication();
@@ -37,7 +40,7 @@ public class AuthenticationController {
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<Void> handleCallback(
+    public ResponseEntity<String> handleCallback(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String state,
             @RequestParam(required = false) String error,
@@ -50,9 +53,9 @@ public class AuthenticationController {
         if (error != null) {
             log.error("OAuth provider returned error: {}", error);
             String encoded = URLEncoder.encode(error, StandardCharsets.UTF_8);
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create(frontendBaseUrl + "/auth/callback?status=error&message=" + encoded))
-                    .build();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/html")
+                    .body(buildRedirectHtml(frontendBaseUrl + "/auth/callback?status=error&message=" + encoded));
         }
 
         try {
@@ -60,16 +63,16 @@ public class AuthenticationController {
             tokenQuery.storeUserToken(session.getId(), token);
             log.info("Authentication successful - Token stored in session: {}", session.getId());
 
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create(frontendBaseUrl + "/auth/callback?status=success"))
-                    .build();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/html")
+                    .body(buildRedirectHtml(frontendBaseUrl + "/auth/callback?status=success"));
         } catch (Exception e) {
             log.error("Authentication failed: {}", e.getMessage(), e);
             String errorMessage = e.getMessage() != null ? e.getMessage() : "authentication_failed";
             String encoded = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create(frontendBaseUrl + "/auth/callback?status=error&message=" + encoded))
-                    .build();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/html")
+                    .body(buildRedirectHtml(frontendBaseUrl + "/auth/callback?status=error&message=" + encoded));
         }
     }
 
